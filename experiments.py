@@ -186,15 +186,24 @@ def findPathways(geneDict):
 		returnerlist.append(pa.retrieveGraph(name,aliasDict,dict1,dict2, geneDict))
 	return returnerlist
 
+def constructBinInput(filename):
+	binput = open(filename, 'r')
+        ssDict = {}
+	lines = binput.readlines()
+	for line in lines:
+		geneCount = line.split('\t')
+		#i = len(geneCount) - 1
+		#ssDict[geneCount[0]] = geneCount[1:i]
+		ssDict[geneCount[0]] = geneCount[1:-1]
+	return(ssDict)
+
 if __name__ == '__main__':
 	import time
-
-
-
-
 	start_time = time.time()
 
 	# use the command line to input the file that you want
+	#Is this right?
+	#python experiments.py graphname(to be given) binData\kMeans.bin iterNum(to be given)
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument("graph")
@@ -206,23 +215,18 @@ if __name__ == '__main__':
 	fileName=results.datafile
 	iterNum=int(results.iterNum)
 	
-	name=graphName[:-8]+'_'+results.iterNum
+	name=graphName[:-8]+fileName+'_'+results.iterNum ##
 
-	# insert your code to get a ssDict here. 
+	# insert your code to get a ssDict here.
+	
 	# use fileName to read in the discretized file... you want to standardize the format
+	#ssDict= SOMETHING
+	ssDict = constructBinInput(fileName)
+	
 	# edit the below name to include the pertinent piece of the filename of discretized data
-	outname=graphName[:-8]+'_'+results.iterNum
-	ssDict= SOMETHING
-
-
-
-
-
-
-
-
-
-	print(name)
+	#outname=graphName[:-8]+'_'+results.iterNum
+	outname=graphName[:-8]+fileName+'_'+results.iterNum
+	print(name) #
 	graph = nx.read_gpickle(name)
 	print(len(graph.nodes()))
 	partitionTester(graph,outname,ssDict)
