@@ -1,9 +1,9 @@
 #!/bin/sh
 #SBATCH --partition=standard
-#SBATCH -a 1
+#SBATCH -a 1-5
 #SBATCH -J GArun
 #SBATCH -o GA_out_%A_%a.txt
-#SBATCH -t 08:00:00
+#SBATCH -t 24:00:00
 #SBATCH -n 1
 #SBATCH -c 1
 
