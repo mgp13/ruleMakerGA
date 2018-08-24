@@ -91,10 +91,9 @@ def cxTwoPointNode(ind1, ind2):
 def buildToolbox( individualLength, bitFlipProb, model, params):
 	
 	toolbox = base.Toolbox() # build baseline toolbox
-		weightTup=(-1.0,) # specify weights of the errors
-	if params.adaptive:
-		for i in range(len(model.nodeList)-1):
-			weightTup+=(-1.0,)
+	weightTup=(-1.0,) # specify weights of the errors
+	for i in range(len(model.nodeList)-1):
+		weightTup+=(-1.0,)
 	creator.create("FitnessMin", base.Fitness, weights=weightTup) # make a fitness minimization function
 	creator.create("Individual", list, fitness=creator.FitnessMin)	# create a class of individuals that are lists
 
