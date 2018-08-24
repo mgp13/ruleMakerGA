@@ -66,10 +66,9 @@ def makeRA(data,comparison,groups):
 		mean1=np.mean([data[element][temp] for temp in groups[group1]])
 		mean2=np.mean([data[element][temp] for temp in groups[group2]])
 		if mean1<=0 or mean2<=0:
-			print(element)
-			print(mean1)
-			print(mean2)
+			print('zero mean for '+ element+'.  means: '+str(mean1)+' '+str(mean2)+'. Low replaced by .1')
 			print(data[element])
+			RAdict[element]=abs(math.log(max(mean1,mean2),2)-math.log(.1,2))
 		else:
 			differ=abs(math.log(mean1,2)-math.log(mean2,2))
 			RAdict[element]=differ
@@ -103,8 +102,6 @@ def findPathwayList():
 			ImportanceVals[storeModel[1][node]]=np.mean([math.log(pathVals[i][node] ,2) for i in range(5)])
 		# add nodes removed during network simplification back in
 		removedNodes=pickle.Unpickler(open( 'pickles/'+code+'_addLaterNodes.pickle', "rb" )).load()
-		print(ImportanceVals.keys())
-		print(removedNodes)
 		doubleRemoveNodes=[]
 		for node in removedNodes:
 			if node[1] in ImportanceVals:
@@ -215,7 +212,7 @@ def scorePathway(RAs,pathImportances):
 	allNodes=RAs.keys()
 	for node in pathImportances:
 		score+=RAs[node]*pathImportances[node]
-	print(np.mean([RAs[value] for value in allNodes]))
+	print('Relative abundance mean difference: '+ str(np.mean([RAs[value] for value in allNodes])))
 	randomScores=[]
 	for i in range(1000):
 		tempscore=0

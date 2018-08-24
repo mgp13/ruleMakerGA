@@ -165,7 +165,7 @@ class modelClass:
 	def updateCpointers(self):
 		tempandnoder=[]
 		tempandinverter=[]
-		for currentNode in range(300):
+		for currentNode in range(500):
 			tempAndNodes=[]
 			tempandNodeInvertList=[]
 			if currentNode<len(self.nodeList):
@@ -384,7 +384,7 @@ def asyncBool(individual, model, simSteps, initValues, iters, knockouts, knockin
 # init value generator for EBNs
 def genEBNInitValues(individual, model,sampleProbs):
 	#return [True if (random()<sampleProbs[node]) else False for node in range(0,len(sampleProbs))]
-	initValues=np.zeros(300,dtype=np.intc, order='C')
+	initValues=np.zeros(500,dtype=np.intc, order='C')
 	for node in range(0,len(sampleProbs)):
 		if random()<sampleProbs[node]:
 			initValues[node]=1
@@ -430,30 +430,16 @@ def NPsync(individual, model, cells, sampleProbs, params, KOs, KIs, syncBoolC):
 	knockouts1=ctypes.c_void_p(knockouts.ctypes.data)
 	knockins1=ctypes.c_void_p(knockins.ctypes.data)
 	
-	updateBooler=ctypes.cdll.LoadLibrary('./testRun.so')
-	boolC2=updateBooler.syncBool 
-
 	# syncBoolC.argtypes = [ctypes.c_int, ndpointer(ctypes.c_int), ndpointer(ctypes.c_int)]
 	for j in range(0,cells):
 		# shuffle nodes to be initially called.... 
 		#simulations that are truly random starting states should have all nodes added to this list
 		#get initial values for all nodes
 		initValues=genEBNInitValues(individual, model,sampleProbs)
-		# initValues.extend(np.repeat(-1,300-len(initValues)))
-		# while len(initValues)<300:
-		# 	initValues.append(-1)
-		
-		# work on integrating in the try catch rather than the if else below
-		# for q in range(len(initValues)):
-		# 	initValues[q]=int(initValues[q])
-
 		vals=np.zeros(len(model.nodeList), dtype=np.intc, order='C')
 		initValues=np.array(initValues,dtype=np.intc, order='C')
 		initValues1=ctypes.c_void_p(initValues.ctypes.data)
 		valsubmit=ctypes.c_void_p(vals.ctypes.data)
-
 		syncBoolC(valsubmit,nodeIndividual1, indLen1, nodeNum1, andLenList1, individualParse1, andNodes1, andNodeInvertList1, simSteps1, initValues1, knockouts1, knockins1)
-		
-		# vals=runBool(individual, model,simSteps, initValues, params, KOs, KIs, async)
 		cellArray.append(.1*vals)
 	return [(1.*np.sum(col)) / cells for col in zip(*cellArray)]

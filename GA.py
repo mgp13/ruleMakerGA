@@ -52,7 +52,6 @@ def findPopBest(population):
 			saveVal=i
 	ultimate=population[saveVal]
 	minvals=population[saveVal].fitness.values
-	# get rid of redundant edges
 	return minvals, ultimate[1], ultimate[0]
 
 # executes two point crossover at node junctions
@@ -83,6 +82,7 @@ def cxTwoPointNode(ind1, ind2):
 	ind1[1][cxpoint1:cxpoint2], ind2[1][cxpoint1:cxpoint2] = ind2[1][cxpoint1:cxpoint2], ind1[1][cxpoint1:cxpoint2]
 	ind1[0].andNodeList[cxpointer1:cxpointer2], ind2[0].andNodeList[cxpointer1:cxpointer2] = ind2[0].andNodeList[cxpointer1:cxpointer2], ind1[0].andNodeList[cxpointer1:cxpointer2]
 	ind1[0].andNodeInvertList[cxpointer1:cxpointer2], ind2[0].andNodeInvertList[cxpointer1:cxpointer2] = ind2[0].andNodeInvertList[cxpointer1:cxpointer2], ind1[0].andNodeInvertList[cxpointer1:cxpointer2]
+	# update the arrays seen by C code updateBool
 	ind1[0].updateCpointers()
 	ind2[0].updateCpointers()
 	return ind1, ind2
@@ -91,12 +91,7 @@ def cxTwoPointNode(ind1, ind2):
 def buildToolbox( individualLength, bitFlipProb, model, params):
 	
 	toolbox = base.Toolbox() # build baseline toolbox
-	
-	# pset = gp.PrimitiveSet("MAIN", arity=1)
-	# pset.addPrimitive(operator.add, 2)
-	# pset.addPrimitive(operator.sub, 2)
-	# pset.addPrimitive(operator.mul, 2)
-	weightTup=(-1.0,) # specify weight
+		weightTup=(-1.0,) # specify weights of the errors
 	if params.adaptive:
 		for i in range(len(model.nodeList)-1):
 			weightTup+=(-1.0,)
@@ -132,7 +127,6 @@ def runProbabilityBooleanSims(individual, model, sampleNum, cells, params, KOlis
 	seeds=[]
 	for i in range(0,sampleNum):
 		seeds.append(random())
-	# samples=Parallel(n_jobs=min(24,sampleNum))(delayed(sampler)(individual, model, sampleNum, seeds[i], params, KOlist[i], KIlist[i], boolC) for i in range(sampleNum))
 	samples=[sampler(individual, model, sampleNum, seeds[i], params, KOlist[i], KIlist[i], boolC) for i in range(sampleNum)]
 	return samples
 

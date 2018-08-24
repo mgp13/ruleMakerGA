@@ -29,7 +29,7 @@ def Get_expanded_network(rules,equal_sign='*='):
 	composite_nodes=[]
 	G_expand=nx.DiGraph()
 	for line in rules:
-		child, update_rule=line.split('*=') #correctly annootate child, rule
+		child, update_rule=line.split(equal_sign) #correctly annootate child, rule
 		update_rule=update_rule # remove white space from parents
 		if update_rule[0]=='(' and update_rule[-1]==')': # remove parens from parent
 			update_rule=update_rule[1:-1]
@@ -150,7 +150,7 @@ def writeModel(individual, model):
 	for i in range(0,len(model.nodeList)):
 		addString=addString+writeNode(i,individual[model.individualParse[i]:model.individualParse[i+1]], model)
 		addString=addString+'\n'
-	return addString
+	return addString[:-1]
 
 def writeBruteNode(currentNode,individual,model):
 	padindividual=[0 for x in range(0,model.individualParse[currentNode][0])]
@@ -162,7 +162,7 @@ def writeNode(currentNode,nodeIndividual, model):
 	# This follows the exact same code as updateNode (for switch=0), but writes a string instead of actually updating the values of the nodes
 	andNodes=model.andNodeList[currentNode] # find the list of shadow and nodes we must compute before computing value of current nodes
 	andNodeInvertList=model.andNodeInvertList[currentNode] #find list of lists of whether input nodes need to be inverted (corresponds to inputOrder)
-	writenode=''+model.nodeList[currentNode]+'=' # set up the initial string to use to write node
+	writenode=''+model.nodeList[currentNode]+'*=' # set up the initial string to use to write node
 
 
 	if model.andLenList[currentNode]==0 or sum(nodeIndividual)==0:

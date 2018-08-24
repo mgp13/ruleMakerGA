@@ -47,18 +47,18 @@ int updateBool(int currentNode, int *oldValue,int *nodeIndividual, int andNodes[
 	return newval;
 }
 
-void syncBool(int *avg,int *individual,int indLen, int nodeNum, int *andLenList, int *individualParse, int andNodes[300][7][3], int andNodeInvertList[300][7][3], int simSteps, int initValues[300], int *knockouts, int *knockins){
+void syncBool(int *avg,int *individual,int indLen, int nodeNum, int *andLenList, int *individualParse, int andNodes[500][7][3], int andNodeInvertList[500][7][3], int simSteps, int initValues[500], int *knockouts, int *knockins){
 	// do simulation. individual specifies the particular logic rules on the model. params is a generic holder for simulation parameters. 
 	// set up data storage for simulation, add step 0
-	int simData[300][1000];
+	int simData[500][1000];
 	//iterate over number of steps necessary
 	int step;
 	int i;
 	int nodeEnd;
 	int temp;
 	int nodeStart;
-	int oldValue[300];
-	int newValue[300];
+	int oldValue[500];
+	int newValue[500];
 
 	for(i=0; i<nodeNum; i++){newValue[i]=initValues[i];}
 

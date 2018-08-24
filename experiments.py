@@ -1,22 +1,34 @@
 # import python packages needed in this file
 import pickle
-from deap import base, creator, gp, tools
-from deap import algorithms as algo
-from random import random, seed, shuffle, randint
+from random import random, randint
 import networkx as nx
-import numpy as numpy
 import copy as copy
 import operator
 import argparse as argparse
-import gc as gc
 from ctypes import *
 # import other pieces of our software
-#import networkConstructor as nc
 import simulation as sim
 import GA as ga
 from utils import genInitValueList, synthesizeInputs, setupEmptyKOKI
 
-
+def findNoiseValue(noiseNum):
+	if noiseNum==1:
+		noise=.01
+	elif noiseNum==2:
+		noise=.02
+	elif noiseNum==3:
+		noise=.05
+	elif noiseNum==4:
+		noise=.1
+	elif noiseNum==5:
+		noise=.5
+	elif noiseNum==6:
+		noise=.75
+	elif noiseNum==7:
+		noise=1.
+	elif noiseNum==8:
+		noise=2.
+	return noise
 
 # make a list of dictionaries giving values at each node from list of values across samples and a dictionary structure with random numbers
 def genSampleList(output, sampleDict, samples, model):
@@ -35,8 +47,6 @@ def runExperiment(graph, name, samples, noise, edgeNoise, params):
 	#samples is the number of different initial conditions to provide per trial
 	#graph specifies the network we are testing. 
 	# does everything except params
-
-
 
 	# load in C function
 	#updateBooler=ctypes.cdll.LoadLibrary('./testRun.so')
@@ -62,11 +72,10 @@ def runExperiment(graph, name, samples, noise, edgeNoise, params):
 	
 	# add noise in omics data
 	if noise>0:
+		multiplier=findNoiseValue(noise)
 		for sample in output:
 			for i in range(len(sample)):
-				sample[i]=min(max(0,sample[i]+noise*(random()*2-1)),1)
-
-
+				sample[i]=min(max(0,sample[i]+multiplier*(random()*2-1)),1)
 
 	# add noise in RPKN
 	if edgeNoise > 0:
@@ -91,13 +100,15 @@ def runExperiment(graph, name, samples, noise, edgeNoise, params):
 
 		print(edgelist)
 		print(newgraph.edges())
+	else:
+		newgraph=graph
 	
 	# output the initial generated data
 	pickle.dump( output, open( name+"_input.pickle", "wb" ) )
 
 	# copy simulated data into right format
 	newSampleList=genSampleList(output, sampleList, samples, model)
-	testModel=sim.modelClass(graph,newSampleList, False)
+	testModel=sim.modelClass(newgraph,newSampleList, False)
 	testModel.updateCpointers()
 	# put initial values into correct format, add to model
 	newInitValueList=genInitValueList(newSampleList,testModel)
@@ -139,7 +150,6 @@ def transformTest(graph,name,fileName):
 	# load data, params, make empty knockout and knockin lists (no KO or KI in transform tests)
 	sampleDict = constructBinInput(fileName)
 	params=sim.paramClass()
-	print(graph.nodes())
 
 	# generate turn sample dict into sample list (list of dicts instead of dict of lists)
 	keyList=sampleDict.keys()
@@ -190,31 +200,20 @@ def constructBinInput(filename):
 
 if __name__ == '__main__':
 
-	# use the command line to input the file that you want
-	#Is this right?
-	#python experiments.py graphname(to be given) binData\kMeans.bin iterNum(to be given)
-
+	# read in arguments
 	parser = argparse.ArgumentParser()
 	parser.add_argument("graph")
 	parser.add_argument("noiseNum")
 	parser.add_argument("iterNum")
-
 	results = parser.parse_args()
 	graphName=results.graph
-	noiseNum=results.noiseNum
+	noiseNum=int(results.noiseNum)
 	iterNum=int(results.iterNum)
-	
-	name=graphName[:-8]+fileName+'_'+results.iterNum ##
+	# save name and print
+	outname=graphName[:-8]+results.noiseNum+'_'+results.iterNum
+	print(outname) #
 
-	# insert your code to get a ssDict here.
-	
-	# use fileName to read in the discretized file... you want to standardize the format
-	#ssDict= SOMETHING
-	
-	# edit the below name to include the pertinent piece of the filename of discretized data
-	#outname=graphName[:-8]+'_'+results.iterNum
-	outname=graphName[:-8]+noiseNum+'_'+results.iterNum
-	print(name) #
+	# read graph and run experiment
 	graph = nx.read_gpickle(graphName)
 	print(len(graph.nodes()))
-	omicsNoiseTester(graph,outname,0)
+	omicsNoiseTester(graph,outname,noiseNum)
